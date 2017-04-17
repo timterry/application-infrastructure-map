@@ -24,7 +24,7 @@
   (let [filtered-names (filter
                          (fn[entry]
                            (some #{(second entry)} names))
-                         (:config map))]
+                         (:config app))]
     (-> (mapv val filtered-names)
         distinct)))
 
@@ -44,6 +44,22 @@
 (defn filter-for-name-regex [regex app]
   (when-let [matched-name (re-matches regex (:name app))]
     [(second matched-name)]))
+
+(defn filter-for-sqs [names app]
+  ;sometimes sqs queue names are given using a url
+  ;sometimes they are just a name, so we must check for both types.
+  (let [sqs-regex #"https://.+/[0-9]+/(.+)"
+        app-with-transformed-names (->> (:config app)
+                                        (map
+                                          (fn [entry]
+                                            (when-let [match (re-matches sqs-regex (str (second entry)))]
+                                              {(first entry) (second match)})))
+                                        (remove nil?)
+                                        (into {}))
+        regex-matches (filter-for-names names {:config app-with-transformed-names})
+        matches (filter-for-names names app)]
+    (-> (concat matches regex-matches)
+        distinct)))
 
 (defn filter-for-jdbc [app]
   (->> (filter-for-regex
