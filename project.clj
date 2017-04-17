@@ -7,4 +7,5 @@
                  [dorothy "0.0.6"]
                  [amazonica "0.3.85"]
                  [jarohen/nomad "0.7.0"]
-                 [org.clojure/tools.reader "1.0.0-beta4"]])
+                 [org.clojure/tools.reader "1.0.0-beta4"]
+                 [listora/again "0.1.0"]])
